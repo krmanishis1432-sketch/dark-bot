@@ -2,7 +2,7 @@ import os
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-BOT_TOKEN = os.getenv("8805077416:AAFTuY-8chkq6jWgLOh_D2MQM-b8lvpxA6Y")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 VIDEO_ID = "1026421290532071"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
