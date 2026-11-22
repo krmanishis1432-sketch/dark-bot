@@ -1,14 +1,15 @@
+import os
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-BOT_TOKEN = "8305021240:AAH..._TUMHARA_TOKEN_YAHAN_DALO"
+BOT_TOKEN = os.getenv("8805077416:AAFTuY-8chkq6jWgLOh_D2MQM-b8lvpxA6Y")
 VIDEO_ID = "1026421290532071"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Bot ON hai. /send likho.")
 
 async def send(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_video(chat_id=update.effective_chat.id, video=VIDEO_ID, caption="Phone off par bhi chalega!")
+    await context.bot.send_video(chat_id=update.effective_chat.id, video=VIDEO_ID)
 
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
