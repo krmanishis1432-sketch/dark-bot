@@ -1,4 +1,6 @@
-import os, threading, asyncio
+import os
+import threading
+import asyncio
 from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, ContextTypes, filters
@@ -8,9 +10,8 @@ app = Flask(__name__)
 
 GET_KEY_URL = "https://t.me/+wS7sgzAEfLo4N2Vl"
 
-# AAPKA VIDEO ID - Ready hai
 VIDEO_ID = "BAACAgUAAxkBAAEk2pVrA7vnf8MxLszoLFn-nxKJtYl5nQACTCgAAj_vIFSV63yrAe46hz0E"
-VOICE_ID = "" # Abhi khali hai, baad me bhar denge
+VOICE_ID = ""
 
 CH1 = "https://t.me/+wS7sgzAEfLo4N2Vl"
 CH2 = "https://t.me/BananaKingOfficial1"
@@ -22,58 +23,53 @@ CH7 = "https://t.me/+wS7sgzAEfLo4N2Vl"
 
 @app.route('/')
 def home():
-    return "Bot Live With Video + Voice Finder"
+    return "Bot Live"
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start(update, context):
     keyboard = [
-        [InlineKeyboardButton("🔗 JOIN [1]", url=CH1), InlineKeyboardButton("🔗 JOIN [2]", url=CH2)],
-        [InlineKeyboardButton("🔗 JOIN [3]", url=CH3), InlineKeyboardButton("🔗 JOIN [4]", url=CH4)],
-        [InlineKeyboardButton("🔗 JOIN [5]", url=CH5), InlineKeyboardButton("🔗 JOIN [6]", url=CH6)],
-        [InlineKeyboardButton("🔗 JOIN [7]", url=CH7)],
-        [InlineKeyboardButton("✅ CHECK JOINED", callback_data="check")]
+        [InlineKeyboardButton("JOIN [1]", url=CH1), InlineKeyboardButton("JOIN [2]", url=CH2)],
+        [InlineKeyboardButton("JOIN [3]", url=CH3), InlineKeyboardButton("JOIN [4]", url=CH4)],
+        [InlineKeyboardButton("JOIN [5]", url=CH5), InlineKeyboardButton("JOIN [6]", url=CH6)],
+        [InlineKeyboardButton("JOIN [7]", url=CH7)],
+        [InlineKeyboardButton("CHECK JOINED", callback_data="check")]
     ]
     markup = InlineKeyboardMarkup(keyboard)
-    text = f'🔥 Welcome God 🥇\n\n🚫 Join All Channels To Unlock 🔵\n\n🔑 <a href="{GET_KEY_URL}">GET KEY</a>'
-
+    text = f'Welcome God\n\nJoin All Channels To Unlock\n\nGET KEY: {GET_KEY_URL}'
     if VIDEO_ID:
-        await context.bot.send_video(chat_id=update.effective_chat.id, video=VIDEO_ID, caption=text, parse_mode="HTML", reply_markup=markup)
+        await context.bot.send_video(chat_id=update.effective_chat.id, video=VIDEO_ID, caption=text, reply_markup=markup)
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode="HTML", reply_markup=markup, disable_web_page_preview=True)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text, reply_markup=markup)
 
-async def check_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def check_button(update, context):
     q = update.callback_query
     await q.answer()
-    if VOICE_ID:
-        await context.bot.send_voice(chat_id=q.message.chat_id, voice=VOICE_ID)
-    await q.message.reply_text(f"✅ Key Unlocked 🗝️\n{GET_KEY_URL}")
+    await q.message.reply_text(f"Key Unlocked: {GET_KEY_URL}")
 
-# YE NAYA HAI - VOICE/VIDEO KA ID NIKALNE KE LIYE
-async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def get_id(update, context):
     if update.message.voice:
         fid = update.message.voice.file_id
-        await update.message.reply_text(f"✅ VOICE FILE_ID MIL GAYA:\n\n`{fid}`\n\nIsko copy karke code me VOICE_ID me paste kar do!", parse_mode="Markdown")
+        await update.message.reply_text(f"VOICE ID: {fid}")
     if update.message.video:
         fid = update.message.video.file_id
-        await update.message.reply_text(f"✅ VIDEO FILE_ID:\n\n`{fid}`", parse_mode="Markdown")
-    if update.message.audio:
-        fid = update.message.audio.file_id
-        await update.message.reply_text(f"✅ AUDIO FILE_ID:\n\n`{fid}`", parse_mode="Markdown")
+        await update.message.reply_text(f"VIDEO ID: {fid}")
 
 def run_bot():
-    if not BOT_TOKEN: return
+    if not BOT_TOKEN:
+        return
     async def main():
         from telegram import Bot
         await Bot(token=BOT_TOKEN).delete_webhook(drop_pending_updates=True)
         app_bot = Application.builder().token(BOT_TOKEN).build()
         app_bot.add_handler(CommandHandler("start", start))
         app_bot.add_handler(CallbackQueryHandler(check_button, pattern="check"))
-        app_bot.add_handler(MessageHandler(filters.VOICE | filters.VIDEO | filters.AUDIO, get_id))
+        app_bot.add_handler(MessageHandler(filters.VOICE | filters.VIDEO, get_id))
         await app_bot.initialize()
         await app_bot.start()
         await app_bot.updater.start_polling()
-        while True: await asyncio.sleep(3600)
+        while True:
+            await asyncio.sleep(3600)
     asyncio.run(main())
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot, daemon=True).start()
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
