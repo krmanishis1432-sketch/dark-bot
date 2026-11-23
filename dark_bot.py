@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram.ext import Application, CommandHandler, ContextTypes
 import threading
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -13,29 +13,26 @@ def home():
     return "Bot Live!"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if os.path.exists(VIDEO_ID_FILE):
-        with open(VIDEO_ID_FILE, "r") as f:
-            file_id = f.read().strip()
-        await update.message.reply_video(video=file_id, caption="🔥 Free Fire - Dark Bot")
-    else:
-        await update.message.reply_text("Pehle mujhe Free Fire wala video bhejo, fir /start pe bhejunga!")
-
-async def save_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    file_id = update.message.video.file_id
-    with open(VIDEO_ID_FILE, "w") as f:
-        f.write(file_id)
-    await update.message.reply_text("Save ho gaya! ✅ Ab /start likho.")
+    await update.message.reply_text("Bot is Online! ✅")
 
 def run_flask():
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
 
-def main():
+async def main():
+    if not BOT_TOKEN:
+        print("BOT_TOKEN not found!")
+        return
+    
+    # Flask ko alag thread me chalao
     threading.Thread(target=run_flask, daemon=True).start()
+    
     application = Application.builder().token(BOT_TOKEN).build()
-    application.add_handler(MessageHandler(filters.VIDEO, save_video))
     application.add_handler(CommandHandler("start", start))
+    
     print("Bot Started...")
-    application.run_polling()
+    await application.run_polling()
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(main())
